@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>JS鼠标粒子流光特效</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #000;
+            overflow: hidden;
+            height: 100vh;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particles = [];
+
+class Particle {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.size = Math.random() * 3 + 1;
+        this.speedX = Math.random() * 3 - 1.5;
+        this.speedY = Math.random() * 3 - 1.5;
+        this.color = `hsl(${Math.random() * 360}, 100%, 50%)`;
+    }
+    update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if (this.size > 0.1) this.size -= 0.05;
+    }
+    draw() {
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+function createParticles(e) {
+    const x = e.x;
+    const y = e.y;
+    for (let i = 0; i < 10; i++) {
+        particles.push(new Particle(x, y));
+    }
+}
+
+function animate() {
+    ctx.fillStyle = 'rgba(0,0,0,0.1)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    for (let i = 0; i < particles.length; i++) {
+        particles[i].update();
+        particles[i].draw();
+
+        if (particles[i].size <= 0.1) {
+            particles.splice(i, 1);
+            i--;
+        }
+    }
+    requestAnimationFrame(animate);
+}
+
+document.addEventListener('mousemove', createParticles);
+window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+});
+
+animate();
+</script>
+</body>
+</html>
